@@ -67,80 +67,60 @@ task05
 *1*
 -
 因为在标定相机的时候使用的相机只支持MONO格式，因此若要使用相机进行检验，需要进行以下操作：
+*1. 将camera_params.yaml中的pixel_format改为Mono8，将source_type改为hik。*
 
+*2. 在light_strip_detector.cpp中找到以下两行：
 ```
-source /opt/ros/humble/setup.zsh   
-```
-如若没有警告，
-
-接着source install文件里面的setup.py:
-
-```
-source install/setup.zsh 
+cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 ```
 
-然后就可以启动构建pkg了:
+```
+auto annotated_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", annotated_image).toImageMsg();
+```
+
+将第一行代码encoding改为“MONO8”，第二行的改成“mono8”。如果需要调用单通道编码视频同理。
+
+*2*
+-
+在light_strip_detector中加入了计算装甲板坐标的逻辑，目前处于注释状态，若要计算装甲版相机坐标系坐标取消注释即可，但是建议在代码应用于检测装甲板数字的时候注释掉这一段（否则有可能会造成卡顿的现象。）
+
+***在以上事项均作好之后开始构建编译。***
+-
+
+首先找到你的ros2。
+```
+source /opt/ros/humble/setup.zsh
+```
+
+然后就可以启动构建pkg:
 
 ```
 colcon build --packages-select hik_camera
 ```
 (这里会弹出一些警告，无伤大雅，忽视即可)
 
-最后运行节点：
+构建成功后。
 
 ```
-ros2 run hik_camera hik_camera_node
+source install/setup.zsh
 ```
 
-之后节点就会开始运行,但不会弹出rviz2窗口。这是你需要手动输入参数并且手动打开rviz2。
+之后导入下列路径：
+```
+export LD_LIBRARY_PATH=/opt/libtorch/lib:$LD_LIBRARY_PATH
+```
 
-更好的方法是使用launch文件来运行节点：
+然后使用launch文件来运行节点：
 
 ```
 ros2 launch hik_camera hik_camera.launch.py
 ```
 
-你就可以看到rviz2窗口弹出，接下来你就可以在窗口中点击add，然后by topic/image_raw/image来查看图像。
+你就可以看到rviz2窗口弹出，接下来你就可以在窗口中点击add，然后你就可以查看三个话题。
 
-接收和查看节点
----
-新建一个终端，然后先source你的ros2：
+*1* image_raw 相机取流或者本地视频文件取流并上传的原图像。
 
-```
-source /opt/ros/humble/setup.zsh
-```
+*2* image_processed 处理后的灰度图像，可以在light_strip_detector.cpp中注释掉。
 
-首先可以打开node list查看是否节点正在运行：
+*3* image_with_light_strips 标记出来了装甲板的位置以及装甲版上的图案（这里解释一下：6代表outpost，7代表guard，8代表base）。
 
-```
-ros2 node list
-```
-
-然后查看是否有名为hik_camera的node。
-
-无论你使用的是直接运行节点，还是使用launch文件运行节点，那么你就可以在这个命令行改变参数,如:
-
-```
-ros2 param set /hik_camera camera_sn 00F26632041
-ros2 param set /hik_camera exposure_time 5000.0
-ros2 param set /hik_camera gain 20.0
-ros2 param set /hik_camera frame_rate 10.0
-```
-
-之后查看话题：
-
-```
-ros2 topic list
-```
-
-然后查看是否有名为image_raw的话题。
-
-这是如果你监听image_raw的话题的话：
-
-```
-ros2 topic echo /image_raw
-```
-
-会看到一串数字编码，说明相机正在向你的电脑传输图片数据。
-
-在这串数字窗口中，你可以找到图片的详细信息。
