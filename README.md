@@ -33,7 +33,7 @@ task05
 
   3.armor_classifier.cpp:定义了识别装甲板数字图案所需要的函数。
 
-  4.light_strip_detector.cpp：进行灯条识别，图像装甲板roi查找，标记识别数字与装甲板，并发布图像到processed_image（only for test,可以注释掉）和 image_with_light_strips两个topic上。
+  4.light_strip_detector.cpp：进行灯条识别，图像装甲板roi查找，标记识别数字与装甲板，并发布图像到processed_image（only for test,可以注释掉）和 image_with_light_strips两个topic上,代码中还有识别完整等条轮廓的代码（103-107行，处于注释状态，有需要可以解除注释）。
   
   
   **CMakeLists.txt**
@@ -122,5 +122,6 @@ ros2 launch hik_camera hik_camera.launch.py
 
 *2* image_processed 处理后的灰度图像，可以在light_strip_detector.cpp中注释掉。
 
-*3* image_with_light_strips 标记出来了装甲板的位置以及装甲版上的图案（这里解释一下：6代表outpost，7代表guard，8代表base）。
+*3* image_with_light_strips 标记出来了装甲板的位置以及装甲版上的图案。
+
 
