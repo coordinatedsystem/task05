@@ -22,7 +22,7 @@ private:
     std::shared_ptr<torch::jit::script::Module> module_;
 
     std::vector<std::string> class_names_ = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "negative"
+        "1", "2", "3", "4", "5", "6(outpost)", "7(guard)", "8(base)", "9(neg)"
     };
 };
 
